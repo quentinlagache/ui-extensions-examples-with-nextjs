@@ -9,10 +9,10 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   } = req;
   console.log({productId})
   const result = await fetch(
-    `https://${store}.myshopify.com/admin/api/2020-10/graphql.json`, {
+    `https://${store}.myshopify.com/api/2022-01/graphql.json`, {
     method: 'POST',
     headers: {
-      'X-Shopify-Access-Token': accessToken,
+      'X-Shopify-Storefront-Access-Token': accessToken,
       'Content-Type': 'application/graphql',
     },
     body: `
