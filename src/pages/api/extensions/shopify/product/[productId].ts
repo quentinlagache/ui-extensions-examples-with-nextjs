@@ -20,12 +20,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         product(id: "${productId}") {
           id
           handle
-          title
-          status
-          featuredImage {
-            originalSrc
-            transformedSrc
-          }
         }
       }
     `
