@@ -1,15 +1,15 @@
-import * as React from "react";
+import * as React from "react"
 
-import "@shopify/polaris/dist/styles.css";
+import "@shopify/polaris/dist/styles.css"
 import {
   Wrapper as ExtensionWrapper,
   useUiExtension,
   ExtensionDeclaration,
   FieldExtensionType,
   FieldExtensionFeature,
-} from "@graphcms/uix-react-sdk";
+} from "@graphcms/uix-react-sdk"
 
-import enTranslations from "@shopify/polaris/locales/en.json";
+import enTranslations from "@shopify/polaris/locales/en.json"
 import {
   AppProvider,
   TextField,
@@ -19,7 +19,7 @@ import {
   Card,
   Thumbnail,
   DisplayText,
-} from "@shopify/polaris";
+} from "@shopify/polaris"
 
 const extensionDeclaration: ExtensionDeclaration = {
   extensionType: "field",
@@ -38,16 +38,16 @@ const extensionDeclaration: ExtensionDeclaration = {
       required: true,
     },
   },
-};
+}
 
 export default function ShopifyExtension({ extensionUid }) {
-  console.log({ extensionUid });
-  if (typeof extensionUid !== "string") return <p> missing extension UID</p>;
+  console.log({ extensionUid })
+  if (typeof extensionUid !== "string") return <p> missing extension UID</p>
   return (
     <ExtensionWrapper uid={extensionUid} declaration={extensionDeclaration}>
       <ShopifyProductInput />
     </ExtensionWrapper>
-  );
+  )
 }
 
 /// ok let's make an extension out of this
@@ -58,44 +58,44 @@ function ShopifyProductInput() {
     extension: {
       config: { STORE, ACCESS_TOKEN },
     },
-  } = useUiExtension();
+  } = useUiExtension()
 
   React.useEffect(() => {
-    let listener;
+    let listener
     const listenForItem = async function () {
-      const postRobot = (await import("post-robot")).default;
+      const postRobot = (await import("post-robot")).default
       listener = postRobot.on("selectItem", (event) => {
-        const id = event.data.id;
-        setTimeout(() => onChange(id), 100);
-        return true;
-      });
-    };
-    listenForItem();
+        const id = event.data.id
+        setTimeout(() => onChange(id), 100)
+        return true
+      })
+    }
+    listenForItem()
     return () => {
-      listener.cancel();
-    };
-  }, []);
+      listener.cancel()
+    }
+  }, [])
 
   const openPicker = React.useCallback(() => {
     const windowFeatures =
-      "menubar=yes,resizable=yes,scrollbars=yes,status=yes,width=320,height=640";
+      "menubar=yes,resizable=yes,scrollbars=yes,status=yes,width=320,height=640"
     const pickerWindow = window.open(
       "shopify/picker",
       "Shopify_Picker",
       windowFeatures
-    );
-    let configInterval;
+    )
+    let configInterval
     const sendConfig = async () => {
-      const postRobot = (await import("post-robot")).default;
+      const postRobot = (await import("post-robot")).default
       postRobot
         .send(pickerWindow, "config", { STORE, ACCESS_TOKEN })
         .then(function (result) {
-          console.log({ result });
-          if (result) clearInterval(configInterval);
-        });
-    };
-    configInterval = setInterval(sendConfig, 200);
-  }, []);
+          console.log({ result })
+          if (result) clearInterval(configInterval)
+        })
+    }
+    configInterval = setInterval(sendConfig, 200)
+  }, [])
 
   return (
     <AppProvider i18n={enTranslations}>
@@ -106,6 +106,7 @@ function ShopifyProductInput() {
           onChange={onChange}
           connectedRight={<Button onClick={openPicker}>open picker</Button>}
         />
+        preview:{value}{STORE}{ACCESS_TOKEN}
         <ProductPreview
           productId={value}
           store={STORE}
@@ -113,31 +114,31 @@ function ShopifyProductInput() {
         />
       </div>
     </AppProvider>
-  );
+  )
 }
 
 function useThrottledfunction(callback, delay) {
-  const savedCallback = React.useRef();
-  const savedArgs = React.useRef([]);
-  const timeoutId = React.useRef(null);
+  const savedCallback = React.useRef()
+  const savedArgs = React.useRef([])
+  const timeoutId = React.useRef(null)
 
-  React.useEffect(() => (savedCallback.current = callback), [callback]);
+  React.useEffect(() => (savedCallback.current = callback), [callback])
 
   const dummyFunction = React.useCallback(
     (...args) => {
       if (timeoutId.current) {
-        clearTimeout(timeoutId.current);
+        clearTimeout(timeoutId.current)
       }
       timeoutId.current = setTimeout(() => {
         //@ts-ignore
-        savedCallback.current(...savedArgs.current);
-      }, delay);
-      savedArgs.current = args;
+        savedCallback.current(...savedArgs.current)
+      }, delay)
+      savedArgs.current = args
     },
     [callback]
-  );
+  )
 
-  return dummyFunction;
+  return dummyFunction
 }
 
 function ProductPreview({
@@ -145,19 +146,19 @@ function ProductPreview({
   store,
   accessToken,
 }: {
-  productId: string;
-  store: string;
-  accessToken: string;
+  productId: string
+  store: string
+  accessToken: string
 }) {
   const [state, setState] = React.useState({
     loading: false,
     error: null,
     data: null,
-  });
+  })
   const fetchProduct = React.useCallback(
     (productId) => {
       if (typeof window !== "undefined") {
-        setState({ loading: true, error: null, data: null });
+        setState({ loading: true, error: null, data: null })
         window
           .fetch(
             `/api/extensions/shopify/product/${encodeURIComponent(productId)}`,
@@ -177,39 +178,39 @@ function ProductPreview({
                     loading: false,
                     error: null,
                     data: data?.data?.product,
-                  });
+                  })
                 else
                   setState({
                     loading: false,
                     error: new Error("Product not found"),
                     data: null,
-                  });
-              });
+                  })
+              })
             } else {
               setState({
                 loading: false,
                 error: new Error(res.statusText),
                 data: null,
-              });
+              })
             }
           })
-          .catch((error) => setState({ loading: false, error, data: null }));
+          .catch((error) => setState({ loading: false, error, data: null }))
       }
     },
     [store, accessToken]
-  );
+  )
 
-  const throttledFetchProduct = useThrottledfunction(fetchProduct, 100);
+  const throttledFetchProduct = useThrottledfunction(fetchProduct, 100)
   React.useEffect(() => {
     if (productId.startsWith("gid://shopify/Product/"))
-      throttledFetchProduct(productId);
+      throttledFetchProduct(productId)
     else
       setState({
         loading: false,
         error: null,
         data: null,
-      });
-  }, [productId]);
+      })
+  }, [productId])
   return state.loading ? (
     <Card>
       <Spinner />
@@ -232,5 +233,5 @@ function ProductPreview({
       )}
       {state.error && <p style={{ color: "red" }}>{state.error.message}</p>}
     </React.Fragment>
-  );
+  )
 }
