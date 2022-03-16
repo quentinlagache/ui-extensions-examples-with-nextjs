@@ -202,7 +202,7 @@ function ProductPreview({
 
   const throttledFetchProduct = useThrottledfunction(fetchProduct, 100)
   React.useEffect(() => {
-    if (productId.startsWith("gid://shopify/Product/"))
+    if (atob(productId).startsWith("gid://shopify/Product/"))
       throttledFetchProduct(productId)
     else
       setState({
