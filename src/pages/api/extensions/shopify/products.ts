@@ -18,12 +18,6 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
             node {
               id
               handle
-              title
-              status
-              featuredImage {
-                originalSrc
-                transformedSrc
-              }
             }
           }
           pageInfo {
